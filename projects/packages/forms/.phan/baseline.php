@@ -12,7 +12,6 @@ return [
     // PhanTypeMismatchArgument : 35+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
-    // PhanRedundantCondition : 6 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanPluginDuplicateAdjacentStatement : 2 occurrences
     // PhanPluginRedundantAssignment : 2 occurrences
@@ -28,7 +27,7 @@ return [
         'src/contact-form/class-contact-form-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyNullTypeMismatchProperty', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-plugin.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-shortcode.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/contact-form/class-contact-form.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/contact-form/class-contact-form.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
         'src/service/class-google-drive.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'tests/php/contact-form/Contact_Form_Plugin_Test.php' => ['PhanPluginMixedKeyNoKey'],
         'tests/php/dashboard/Dashboard_View_Switch_Test.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction'],

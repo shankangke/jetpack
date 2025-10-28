@@ -1101,8 +1101,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					// Replace only the first occurrence.
 					$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
 				} else {
-					// this was the case for is_single_input_form, now I don't know.
-					$r .= self::render_error_wrapper( array( 'is-horizontal' ) );
+					$r .= self::render_error_wrapper( 'is-horizontal' );
 				}
 			}
 
@@ -1263,11 +1262,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper function that display the error wrapper.
 	 *
-	 * @param array $classes - the classes to add to the error wrapper.
+	 * @param string $classes - the class names to add to the error wrapper.
 	 * @return string HTML string for the error wrapper.
 	 */
-	private static function render_error_wrapper( $classes = array() ) {
-		$html  = '<div class="contact-form__error ' . implode( ' ', $classes ) . '" data-wp-class--show-errors="state.showFormErrors">';
+	private static function render_error_wrapper( $classes = '' ) {
+		$html  = '<div class="contact-form__error ' . esc_attr( $classes ) . '" data-wp-class--show-errors="state.showFormErrors">';
 		$html .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
 				<span data-wp-text="state.getFormErrorMessage"></span>
 				<ul>

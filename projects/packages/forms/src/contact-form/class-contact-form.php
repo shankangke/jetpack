@@ -389,6 +389,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The secret from the Tokens class, or a default secret if not available.
 	 */
 	private static function get_secret() {
+
+		/**
+		 * Filter the secret used for signing contact form JWT tokens.
+		 *
+		 * @param string $secret Passes a empty string by default so that we can fall back to other methods if the filter is not used.
+		 *
+		 * @return string The secret used for signing contact form JWT tokens.
+		 */
+		$secret = apply_filters( 'jetpack_forms_secret_jwt', '' );
+		if ( is_string( $secret ) && ! empty( $secret ) ) {
+			return $secret;
+		}
+
 		$token          = ( new Tokens() )->get_access_token();
 		$default_secret = hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION );
 
@@ -722,7 +735,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$version
 		);
 
-		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
+		$is_single_input_form = is_array( $form->fields ) && count( $form->fields ) === 1;
+
+		$container_classes = array( 'wp-block-jetpack-contact-form-container' );
+
+		if ( $is_single_input_form ) {
+			$container_classes[] = 'is-single-input-form';
+		}
+
 		$container_classes[]      = self::get_block_alignment_class( $attributes );
 		$container_classes_string = implode( ' ', $container_classes );
 
@@ -893,7 +913,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			if ( $is_multistep ) {
 				$r = preg_replace( '/<div class="wp-block-jetpack-form-step-navigation__wrapper/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-form-step-navigation__wrapper', $r, 1 );
-			} elseif ( $has_submit_button_block ) {
+			} elseif ( $has_submit_button_block && ! $is_single_input_form ) {
 				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
 				// Replace only the first occurrence.
 				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
@@ -2126,6 +2146,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 				/* translators: Placeholder is the IP address of the person who submitted a form. */
 				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
 				$comment_author_ip_with_flag
+			);
+		}
+		$footer_browser = null;
+		if ( $response->get_browser() ) {
+			$footer_browser = sprintf(
+				/* translators: Placeholder is the browser and platform used to submit a form. */
+				esc_html__( 'Browser: %1$s', 'jetpack-forms' ),
+				$response->get_browser()
 			) . '<br />';
 		}
 
@@ -2169,6 +2197,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 						'<span style="font-size: 12px">',
 						$footer_time . '<br />',
 						$footer_ip ? $footer_ip . '<br />' : null,
+						$footer_browser ? $footer_browser . '<br />' : null,
 						$footer_url . '<br /><br />',
 						$footer_mark_as_spam_url ? $footer_mark_as_spam_url . '<br />' : null,
 						$sent_by_text,

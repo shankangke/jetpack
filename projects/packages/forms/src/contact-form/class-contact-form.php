@@ -402,15 +402,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return $secret;
 		}
 
-		$token          = ( new Tokens() )->get_access_token();
-		$default_secret = hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION );
+		$token = ( new Tokens() )->get_access_token();
 
-		if ( empty( $token->secret ) ) {
-			return $default_secret;
+		if ( ! empty( $token->secret ) ) {
+			return $token->secret;
 		}
 
-		// Get the secret from the Tokens class.
-		return $token->secret;
+		$secret = get_option( 'jetpack_forms_secret_key', false );
+		if ( empty( $secret ) ) {
+			// Generate a fallback secret if we don't have one from Tokens.
+			$secret = wp_generate_password( 64, true, true );
+			update_option( 'jetpack_forms_secret_key', $secret );
+		}
+
+		return $secret;
 	}
 
 	/**
@@ -801,6 +806,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'submissionSuccess'       => $submission_success,
 			'submissionError'         => null,
 			'elementId'               => $element_id,
+			'isSingleInputForm'       => $is_single_input_form,
 		);
 
 		if ( $is_multistep ) {
@@ -2141,7 +2147,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 		$footer_ip = null;
 		if ( $comment_author_ip ) {
-			$comment_author_ip_with_flag = $comment_author_ip . ( $response->get_country_flag() ? ' ' . $response->get_country_flag() : '' );
+			$ip_lookup_url               = sprintf( 'https://jetpack.com/redirect/?source=ip-lookup&path=%s', rawurlencode( $comment_author_ip ) );
+			$comment_author_ip_with_link = '<a href="' . esc_url( $ip_lookup_url ) . '">' . esc_html( $comment_author_ip ) . '</a>';
+			$comment_author_ip_with_flag = ( $response->get_country_flag() ? $response->get_country_flag() . ' ' : '' ) . $comment_author_ip_with_link;
 			$footer_ip                   = sprintf(
 				/* translators: Placeholder is the IP address of the person who submitted a form. */
 				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),

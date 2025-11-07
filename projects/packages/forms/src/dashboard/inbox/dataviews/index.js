@@ -6,14 +6,16 @@ import {
 	ExternalLink,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
+	Modal,
 } from '@wordpress/components';
-import { useResizeObserver } from '@wordpress/compose';
+import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { Icon, globe } from '@wordpress/icons';
+import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -89,6 +91,30 @@ export default function InboxView() {
 	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
 	const selectedResponses = searchParams.get( 'r' );
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
+	const [ isResponseModalOpen, setIsResponseModalOpen ] = useState( false );
+	const [ responseModal, setResponseModal ] = useState( null );
+
+	const closeResponseModal = useCallback( () => {
+		setIsResponseModalOpen( false );
+		setResponseModal( null );
+	}, [ setIsResponseModalOpen, setResponseModal ] );
+
+	const openResponseModal = useCallback(
+		item => {
+			const content = <ResponseMobileView response={ item } closeModal={ closeResponseModal } />;
+
+			setResponseModal( content );
+			setIsResponseModalOpen( true );
+		},
+		[ setIsResponseModalOpen, closeResponseModal, setResponseModal ]
+	);
+
+	useEffect( () => {
+		if ( ! isMobileViewport ) {
+			closeResponseModal();
+		}
+	}, [ isMobileViewport, closeResponseModal ] );
 
 	useEffect( () => {
 		return setupSidebarWidthObserver();
@@ -152,13 +178,8 @@ export default function InboxView() {
 
 	const onChangeSelection = useCallback(
 		items => {
-			// Set the side panel item only when we are not on mobile.
-			if ( ! isMobile ) {
-				setSidePanelItem(
-					!! items?.length &&
-						records?.find( record => getItemId( record ) === items[ items.length - 1 ] )
-				);
-			}
+			// Update URL params with selected items
+			// The useEffect above will handle updating the sidebar
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
 				if ( items.length ) {
@@ -169,44 +190,45 @@ export default function InboxView() {
 				return _searchParams;
 			} );
 		},
-		[ records, setSearchParams, isMobile ]
+		[ setSearchParams ]
 	);
 
 	const [ sidePanelItem, setSidePanelItem ] = useState();
-	// Because selection is in sync with the URL and data takes some time to load,
-	// We need to carefully (avoid infinite loops by always updating the state)
-	// set the sidePanelItem when we have data and selection.
-	// We don't need to do this in `mobile`,  because we don't render the side panel.
-	if ( ! isMobile && !! records && !! selection.length ) {
-		// Find the last (most recently selected) valid selection instead of the first
-		const lastValidSelection = selection
-			.slice()
-			.reverse()
-			.find( id => records.some( record => getItemId( record ) === id ) );
-		const recordToShow = records?.find( record => getItemId( record ) === lastValidSelection );
-		if ( ! sidePanelItem && recordToShow ) {
-			setSidePanelItem( recordToShow );
-		} else if ( !! sidePanelItem && ! recordToShow ) {
-			// This case handles the case where we were having a side panel item
-			// visible but the data have changed and the item is not there anymore.
-			setSidePanelItem();
-		} else if (
-			!! sidePanelItem &&
-			!! recordToShow &&
-			getItemId( sidePanelItem ) === getItemId( recordToShow ) &&
+
+	// Manage sidebar visibility based on selection
+	// Only show sidebar when exactly one item is selected on desktop
+	useEffect( () => {
+		if ( isMobile ) {
+			// Don't manage sidebar on mobile
+			return;
+		}
+
+		if ( ! records || selection.length !== 1 ) {
+			// Clear sidebar if no records, no selection, or multiple selections
+			setSidePanelItem( null );
+			return;
+		}
+
+		// Single item selected - find it in records
+		const selectedId = selection[ 0 ];
+		const recordToShow = records.find( record => getItemId( record ) === selectedId );
+
+		if ( ! recordToShow ) {
+			// Selected item not in current records - clear sidebar
+			setSidePanelItem( null );
+			return;
+		}
+
+		// Update sidebar if item changed or needs refresh
+		if (
+			! sidePanelItem ||
+			getItemId( sidePanelItem ) !== getItemId( recordToShow ) ||
 			sidePanelItem !== recordToShow
 		) {
-			// Update side panel item if the data has been refreshed for the SAME item (e.g., after an action)
-			// This ensures the side panel shows the latest version of the same entity
-			setSidePanelItem( recordToShow );
-		} else if (
-			!! recordToShow &&
-			( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) )
-		) {
-			// Set side panel item when selecting a different item
 			setSidePanelItem( recordToShow );
 		}
-	}
+	}, [ isMobile, records, selection, sidePanelItem ] );
+
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
@@ -218,6 +240,7 @@ export default function InboxView() {
 		}
 		return itemValue;
 	};
+
 	const fields = useMemo(
 		() => [
 			{
@@ -228,8 +251,28 @@ export default function InboxView() {
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+					const secondaryInfo =
+						authorInfo === decodeEntities( item.author_name ) && item.author_email ? (
+							<span className="jp-forms__inbox__author-field__email">
+								{ decodeEntities( item.author_email ) }
+							</span>
+						) : null;
+
+					const handleClick = isMobileViewport ? () => openResponseModal( item ) : undefined;
+
 					return (
-						<div className="jp-forms__inbox__author-field">
+						<div
+							className={ clsx(
+								'jp-forms__inbox__author-field',
+								isMobileViewport && 'jp-forms__inbox__author-field--mobile'
+							) }
+							{ ...( isMobileViewport && {
+								onClick: handleClick,
+								onKeyDown: () => {},
+								role: 'button',
+								tabIndex: 0,
+							} ) }
+						>
 							{ item.is_unread && (
 								<span
 									className="jp-forms__inbox__unread-indicator"
@@ -246,7 +289,12 @@ export default function InboxView() {
 								size={ 32 }
 								useHovercard={ false }
 							/>
-							{ wrapperUnread( item.is_unread, authorInfo ) }
+							<div className="jp-forms__inbox__author-info-container">
+								<span className="jp-forms__inbox__author-info">
+									{ wrapperUnread( item.is_unread, authorInfo ) }
+								</span>
+								{ secondaryInfo }
+							</div>
 						</div>
 					);
 				},
@@ -328,50 +376,67 @@ export default function InboxView() {
 				},
 			},
 		],
-		[ filterOptions, dateSettings.formats.date ]
+		[
+			filterOptions?.date,
+			filterOptions?.source,
+			isMobileViewport,
+			openResponseModal,
+			dateSettings.formats.date,
+		]
 	);
 
 	const actions = useMemo( () => {
-		const _actions = [
-			markAsReadAction,
-			markAsUnreadAction,
-			markAsSpamAction,
-			markAsNotSpamAction,
-			moveToTrashAction,
-			editFormAction,
-			restoreAction,
-			deleteAction,
-		];
-		if ( isMobile ) {
-			_actions.unshift( {
-				...viewAction,
-				RenderModal: ( { items, closeModal } ) => {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
-						action: 'view-response',
-						multiple: items.length > 1,
-					} );
-					const [ item ] = items;
-					return <ResponseMobileView response={ item } closeModal={ closeModal } />;
-				},
-				hideModalHeader: true,
-			} );
-		} else {
-			_actions.unshift( {
-				...viewAction,
-				callback( items ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
-						action: 'view-response',
-						multiple: items.length > 1,
-					} );
-					const [ item ] = items;
-					const selectedId = item.id.toString();
-					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
-					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
-				},
-			} );
+		const mobileViewAction = {
+			...viewAction,
+			RenderModal: ( { items, closeModal } ) => {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+					action: 'view-response',
+					multiple: items.length > 1,
+				} );
+
+				const [ item ] = items;
+
+				return <ResponseMobileView response={ item } closeModal={ closeModal } />;
+			},
+			hideModalHeader: true,
+		};
+
+		const desktopViewAction = {
+			...viewAction,
+			callback( items ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+					action: 'view-response',
+					multiple: items.length > 1,
+				} );
+
+				const [ item ] = items;
+				const selectedId = item.id.toString();
+
+				// Select only this item to show it in the sidebar
+				onChangeSelection( [ selectedId ] );
+			},
+		};
+
+		const viewResponseAction = isMobile ? mobileViewAction : desktopViewAction;
+
+		const primaryActions = [ viewResponseAction ];
+		const secondaryActions = [ markAsUnreadAction, editFormAction ];
+
+		switch ( statusFilter ) {
+			case 'trash':
+				return [ ...primaryActions, restoreAction, deleteAction, ...secondaryActions ];
+			case 'spam':
+				return [ ...primaryActions, markAsNotSpamAction, moveToTrashAction, ...secondaryActions ];
+			default:
+				return [
+					...primaryActions,
+					markAsReadAction,
+					markAsSpamAction,
+					moveToTrashAction,
+					...secondaryActions,
+				];
 		}
-		return _actions;
-	}, [ isMobile, onChangeSelection, selection ] );
+	}, [ isMobile, onChangeSelection, statusFilter ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
@@ -401,7 +466,6 @@ export default function InboxView() {
 					onChangeSelection={ onChangeSelection }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
-					header={ <InboxStatusToggle onChange={ resetPage } /> }
 					empty={
 						<EmptyResponses
 							status={ statusFilter }
@@ -409,10 +473,38 @@ export default function InboxView() {
 							readStatusFilter={ readStatusFilter }
 						/>
 					}
-				/>
+				>
+					<HStack
+						className="jp-forms__inbox__view-actions"
+						spacing={ 2 }
+						alignment="center"
+						justify="space-between"
+					>
+						<HStack spacing={ 2 }>
+							<InboxStatusToggle onChange={ resetPage } />
+						</HStack>
+						<HStack spacing={ 2 } justify={ containerWidth < 600 ? 'space-between' : 'flex-end' }>
+							<DataViews.Search />
+							<DataViews.FiltersToggle />
+							<DataViews.ViewConfig />
+						</HStack>
+					</HStack>
+					<DataViews.FiltersToggled className="jp-forms__inbox__filters-container" />
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</DataViews>
+				{ isResponseModalOpen && (
+					<Modal
+						title={ __( 'Response', 'jetpack-forms' ) }
+						__experimentalHideHeader={ true }
+						onRequestClose={ closeResponseModal }
+					>
+						{ responseModal }
+					</Modal>
+				) }
 			</div>
 			<SingleResponseView
-				sidePanelItem={ selection.length && sidePanelItem }
+				sidePanelItem={ selection.length === 1 && sidePanelItem }
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }

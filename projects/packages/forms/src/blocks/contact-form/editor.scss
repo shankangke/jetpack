@@ -107,7 +107,7 @@
 			}
 
 			&.jetpack-field__width-auto {
-				flex: 1 1 auto;
+				flex: 1 1 0;
 			}
 
 			@media (max-width: #{ (gb.$break-mobile) }) {
@@ -976,7 +976,6 @@
 				outline: none;
 			}
 
-			.jetpack-field__input,
 			.jetpack-field__textarea,
 			.jetpack-field-dropdown__toggle {
 				padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);

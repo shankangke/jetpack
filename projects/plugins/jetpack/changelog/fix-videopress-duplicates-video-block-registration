@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: fix errors and unavailable Video block type caused by duplicative `core/video` block type registration.

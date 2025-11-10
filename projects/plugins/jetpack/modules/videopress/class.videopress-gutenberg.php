@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\VideoPress\Block_Replacement;
 
@@ -38,7 +37,7 @@ class VideoPress_Gutenberg {
 	 * Initialize the VideoPress Gutenberg extension
 	 */
 	private function __construct() {
-		add_action( 'init', array( $this, 'register_video_block_with_videopress' ) );
+		add_filter( 'render_block_core/video', array( $this, 'render_video_block_with_videopress' ), 10, 2 );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_extension_availability' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'override_video_upload' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'add_resumable_upload_support' ) );
@@ -116,36 +115,24 @@ class VideoPress_Gutenberg {
 	}
 
 	/**
-	 * Register the core video block as a dynamic block.
-	 *
-	 * It defines a server-side rendering that adds VideoPress support to the core video block.
-	 */
-	public function register_video_block_with_videopress() {
-		Blocks::jetpack_register_block(
-			'core/video',
-			array(
-				'render_callback' => array( $this, 'render_video_block_with_videopress' ),
-			)
-		);
-	}
-
-	/**
 	 * Render the core video block replacing the src attribute with the VideoPress URL
 	 *
-	 * @param array  $attributes Array containing the video block attributes.
-	 * @param string $content    String containing the video block content.
+	 * @param string $block_content The block content.
+	 * @param array  $block         The full block, including name and attributes.
 	 *
 	 * @return string
 	 */
-	public function render_video_block_with_videopress( $attributes, $content ) {
+	public function render_video_block_with_videopress( $block_content, $block ) {
+		$attributes = isset( $block['attrs'] ) ? $block['attrs'] : array();
+
 		if ( ! isset( $attributes['id'] ) || isset( $attributes['guid'] ) ) {
-			return $content;
+			return $block_content;
 		}
 
 		$blog_id = self::get_blog_id();
 
 		if ( ! isset( $blog_id ) ) {
-			return $content;
+			return $block_content;
 		}
 
 		$post_id         = absint( $attributes['id'] );
@@ -153,7 +140,7 @@ class VideoPress_Gutenberg {
 		$videopress_data = videopress_get_video_details( $videopress_id );
 
 		if ( empty( $videopress_data->file_url_base->https ) || empty( $videopress_data->files->hd->mp4 ) ) {
-			return $content;
+			return $block_content;
 		}
 
 		$videopress_url = $videopress_data->file_url_base->https . $videopress_data->files->hd->mp4;
@@ -166,7 +153,7 @@ class VideoPress_Gutenberg {
 				'\1src="%1$s"',
 				esc_url_raw( $videopress_url )
 			),
-			$content,
+			$block_content,
 			1
 		);
 	}

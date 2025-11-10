@@ -145,17 +145,13 @@ class VideoPress_Gutenberg {
 
 		$videopress_url = $videopress_data->file_url_base->https . $videopress_data->files->hd->mp4;
 
-		$pattern = '/(\s)src=([\'"])(?:(?!\2).)+?\2/';
+		$processor = new WP_HTML_Tag_Processor( $block_content );
+		if ( $processor->next_tag( array( 'tag_name' => 'video' ) ) ) {
+			$processor->set_attribute( 'src', esc_url( $videopress_url ) );
+			return $processor->get_updated_html();
+		}
 
-		return preg_replace(
-			$pattern,
-			sprintf(
-				'\1src="%1$s"',
-				esc_url_raw( $videopress_url )
-			),
-			$block_content,
-			1
-		);
+		return $block_content;
 	}
 
 	/**

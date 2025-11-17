@@ -55,7 +55,7 @@ class Contact_Form_Block {
 						'allowJustification'     => false,
 					),
 				),
-				'style_handles'   => array( 'jetpack-contact-form' ),
+				'style_handles'   => array( 'jetpack-forms-layout' ),
 			)
 		);
 

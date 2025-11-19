@@ -175,7 +175,7 @@ $style = '<style media="all" type="text/css">
 	.actions .button_block .pad a span {
 		mso-text-raise: 15pt;
 	}
-	
+
 	.actions .button_block .pad i {
 		letter-spacing: 25px;
 		mso-font-width: -100%;
@@ -277,6 +277,12 @@ $style = '<style media="all" type="text/css">
 			font-family: inherit;
 			font-weight: inherit;
 			line-height: inherit;
+		}
+	}
+
+	@media print {
+		.actions {
+			display: none;
 		}
 	}
 </style>';

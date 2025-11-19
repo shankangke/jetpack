@@ -42,6 +42,7 @@ import {
 	markAsReadAction,
 	markAsUnreadAction,
 	editFormAction,
+	downloadPdfAction,
 } from './actions.tsx';
 import { useView, defaultLayouts } from './views.js';
 
@@ -437,7 +438,7 @@ export default function InboxView() {
 		const viewResponseAction = isMobileViewport ? mobileViewAction : desktopViewAction;
 
 		const primaryActions = [ viewResponseAction ];
-		const secondaryActions = [ markAsUnreadAction, editFormAction ];
+		const secondaryActions = [ markAsUnreadAction, editFormAction, downloadPdfAction ];
 
 		switch ( statusFilter ) {
 			case 'trash':

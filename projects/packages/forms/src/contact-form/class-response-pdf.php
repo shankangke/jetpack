@@ -205,10 +205,14 @@ class Response_PDF {
 
 		// Todo add flag when emoji support is added in Dompdf.
 		if ( $response->get_ip_address() ) {
+			$ip_address = '<span class="ip-address">' .
+				( $response->get_country_flag() ? $response->get_country_flag() . ' ' : '' ) . $response->get_ip_address()
+				. '</span>';
+
 			$header .= sprintf(
 				/* translators: Placeholder is the IP address of the person who submitted a form. */
 				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
-				( $response->get_country_flag() ? $response->get_country_flag() . ' ' : '' ) . $response->get_ip_address()
+				$ip_address
 			);
 			$header .= '<br/>';
 		}
@@ -227,9 +231,35 @@ class Response_PDF {
 		$message = implode( '', self::get_compiled_form_fields( $feedback_id, null ) );
 
 		$styles = '<style>
+			/**
+			 * From wp_enqueue_emoji_styles()
+			 * https://github.com/WordPress/WordPress/blob/b924099da883c55c513087fef74e59ae626ebfb4/wp-includes/formatting.php#L5888-L5898
+			 */
+			 img.wp-smiley, img.emoji {
+				display: inline !important;
+				border: none !important;
+				box-shadow: none !important;
+				height: 1em !important;
+				width: 1em !important;
+				margin: 0 0.07em !important;
+				vertical-align: -0.1em !important;
+				background: none !important;
+				padding: 0 !important;
+			}
+
+			body {
+				font-size: 14px;
+			}
+
 			a {
 				color: #000;
 				text-decoration: none;
+			}
+
+			/* Align the flag with the IP */
+			.ip-address {
+				display: inline-block;
+				vertical-align: middle !important;
 			}
 		</style>';
 

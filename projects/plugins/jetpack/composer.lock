@@ -4,7 +4,11 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
+<<<<<<< HEAD
 	"content-hash": "513d4f057e5ac1783b24badcd64f982b",
+=======
+	"content-hash": "708db098186de11f46e06a9f1d11e58a",
+>>>>>>> 9c3531f842 (Composer changes)
 	"packages": [
 		{
 			"name": "automattic/block-delimiter",
@@ -1490,7 +1494,11 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
+<<<<<<< HEAD
 				"reference": "7d7596f1a9c4e2f83d437ad253f3dbfbdfd64da4"
+=======
+				"reference": "85b738794efe858422dfb937a9769705edcb889e"
+>>>>>>> 9c3531f842 (Composer changes)
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",

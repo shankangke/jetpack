@@ -55,8 +55,7 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
-		"automattic/woocommerce-analytics": "@dev",
-		"dompdf/dompdf": "^3.1"
+		"automattic/woocommerce-analytics": "@dev"
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",

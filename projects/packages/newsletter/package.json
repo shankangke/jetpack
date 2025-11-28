@@ -39,6 +39,7 @@
 		"@wordpress/element": "6.36.0",
 		"@wordpress/i18n": "6.9.0",
 		"@wordpress/notices": "5.35.0",
+		"@wordpress/url": "4.35.0",
 		"debug": "4.4.1"
 	},
 	"devDependencies": {

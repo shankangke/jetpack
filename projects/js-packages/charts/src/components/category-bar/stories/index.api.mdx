@@ -1,0 +1,261 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts/Types/Category Bar/API Reference" />
+
+# Category Bar API Reference
+
+Complete API documentation for the Category Bar component.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `values` | `number[] \| CategoryBarSegment[]` | Required | Array of segment values or segment objects |
+| `mode` | `'proportional' \| 'equal'` | `'proportional'` | How segment widths are calculated |
+| `colors` | `string[]` | Theme colors | Custom colors for segments |
+| `marker` | `CategoryBarMarker` | - | Optional position indicator |
+| `showLabels` | `boolean` | `true` | Whether to show cumulative value labels |
+| `width` | `number` | `300` | Width of the bar in pixels |
+| `height` | `number` | `8` | Height of the bar in pixels |
+| `size` | `number` | - | Size for responsive variant |
+| `gap` | `number` | `0` | Gap between segments in pixels |
+| `borderRadius` | `number` | `4` | Corner radius for bar ends |
+| `className` | `string` | - | Additional CSS class name |
+| `chartId` | `string` | Auto-generated | Unique ID for the chart |
+| `labelFormatter` | `(value: number) => string` | `value.toString()` | Formatter for label values |
+| `withTooltips` | `boolean` | `false` | Whether to show tooltips on hover |
+
+## Type Definitions
+
+### CategoryBarSegment
+
+<Source
+	language="typescript"
+	code={`interface CategoryBarSegment {
+	/**
+	 * Numeric value for this segment.
+	 * In 'proportional' mode, determines segment width relative to total.
+	 * In 'equal' mode, used for tooltip/label display only.
+	 */
+	value: number;
+
+	/**
+	 * Optional label for the segment (used in tooltips)
+	 */
+	label?: string;
+
+	/**
+	 * Optional color override for this segment.
+	 * If not provided, uses theme colors by index.
+	 */
+	color?: string;
+}`}
+/>
+
+### CategoryBarMarker
+
+<Source
+	language="typescript"
+	code={`interface CategoryBarMarker {
+	/**
+	 * Position value where the marker should appear.
+	 * Interpreted as cumulative value from left (0 to total).
+	 */
+	value: number;
+
+	/**
+	 * Optional tooltip text for the marker
+	 */
+	tooltip?: string;
+
+	/**
+	 * Whether to animate the marker position
+	 * @default false
+	 */
+	showAnimation?: boolean;
+
+	/**
+	 * Marker color (defaults to theme text color)
+	 */
+	color?: string;
+}`}
+/>
+
+### CategoryBarMode
+
+<Source
+	language="typescript"
+	code={`type CategoryBarMode = 'proportional' | 'equal';`}
+/>
+
+### CategoryBarProps
+
+<Source
+	language="typescript"
+	code={`interface CategoryBarProps {
+	values: number[] | CategoryBarSegment[];
+	mode?: CategoryBarMode;
+	colors?: string[];
+	marker?: CategoryBarMarker;
+	showLabels?: boolean;
+	width?: number;
+	height?: number;
+	size?: number;
+	gap?: number;
+	borderRadius?: number;
+	className?: string;
+	chartId?: string;
+	labelFormatter?: (value: number) => string;
+	withTooltips?: boolean;
+}`}
+/>
+
+## Exports
+
+<Source
+	language="typescript"
+	code={`// Main exports
+import { CategoryBar, CategoryBarUnresponsive } from '@automattic/charts';
+
+// Type exports
+import type {
+	CategoryBarProps,
+	CategoryBarSegment,
+	CategoryBarMarker,
+	CategoryBarMode,
+} from '@automattic/charts';
+
+// Direct import (tree-shakeable)
+import { CategoryBar } from '@automattic/charts/category-bar';`}
+/>
+
+## Component Variants
+
+### CategoryBar (Responsive)
+
+The default export that automatically adapts to container width:
+
+<Source
+	language="jsx"
+	code={`import { CategoryBar } from '@automattic/charts';
+
+<CategoryBar values={[30, 40, 30]} height={8} />`}
+/>
+
+### CategoryBarUnresponsive
+
+Fixed-size variant that requires explicit width:
+
+<Source
+	language="jsx"
+	code={`import { CategoryBarUnresponsive } from '@automattic/charts';
+
+<CategoryBarUnresponsive values={[30, 40, 30]} width={400} height={8} />`}
+/>
+
+## CSS Classes
+
+The component uses CSS Modules with the following class structure:
+
+| Class | Description |
+|-------|-------------|
+| `.categoryBar` | Root container element |
+| `.categoryBar--empty` | Applied when values array is empty |
+| `.categoryBar__bar` | The horizontal bar container |
+| `.categoryBar__segment` | Individual segment elements |
+| `.categoryBar__segment--first` | First segment (has left border radius) |
+| `.categoryBar__segment--last` | Last segment (has right border radius) |
+| `.categoryBar__marker` | Position marker element |
+| `.categoryBar__marker--animated` | Marker with animation enabled |
+| `.categoryBar__labels` | Labels container |
+| `.categoryBar__label` | Individual label elements |
+| `.categoryBar__tooltip` | Tooltip container |
+| `.categoryBar__tooltipLabel` | Tooltip label text |
+| `.categoryBar__tooltipValue` | Tooltip value text |
+
+## Display Modes
+
+### Proportional Mode
+
+Segment widths are calculated as a percentage of the total:
+
+```
+Segment width = (segment.value / total) * 100%
+```
+
+Example with values `[25, 75]`:
+- Segment 1: 25%
+- Segment 2: 75%
+
+### Equal Mode
+
+All segments have equal width regardless of values:
+
+```
+Segment width = 100% / number of segments
+```
+
+Example with values `[10, 20, 30]`:
+- All segments: 33.33%
+
+## Marker Positioning
+
+The marker position is calculated as a percentage of the total:
+
+```
+Marker position = (marker.value / total) * 100%
+```
+
+For a bar with values `[25, 50, 25]` (total = 100):
+- `marker.value: 25` → positioned at 25%
+- `marker.value: 75` → positioned at 75%
+
+## Theme Integration
+
+The component uses `GlobalChartsProvider` for theming:
+
+<Source
+	language="jsx"
+	code={`import { GlobalChartsProvider, CategoryBar } from '@automattic/charts';
+import { jetpackTheme } from '@automattic/charts/providers';
+
+<GlobalChartsProvider theme={jetpackTheme}>
+	<CategoryBar values={[30, 40, 30]} width={400} />
+</GlobalChartsProvider>`}
+/>
+
+### Color Priority
+
+Colors are applied in this priority order:
+
+1. `segment.color` (from segment object)
+2. `colors[index]` (from colors prop)
+3. `theme.colors[index]` (from theme)
+
+## Edge Case Handling
+
+| Scenario | Behavior |
+|----------|----------|
+| Empty `values` array | Renders empty placeholder with `data-testid="category-bar-empty"` |
+| Single segment | Renders full-width bar |
+| All zero values | Equal mode: equal segments; Proportional: equal segments |
+| Marker value > total | Marker clamped to 100% |
+| Marker value < 0 | Marker clamped to 0% |
+
+## Data Test IDs
+
+For testing, the component provides these test IDs:
+
+| Test ID | Description |
+|---------|-------------|
+| `category-bar` | Main component container |
+| `category-bar-empty` | Empty state container |
+| `category-bar-segment-{index}` | Individual segments (0-indexed) |
+| `category-bar-marker` | Position marker |
+| `category-bar-label-{index}` | Cumulative labels (0-indexed) |
+
+## Performance Notes
+
+- Segment colors and widths are memoized for performance
+- The responsive variant uses `ResizeObserver` for efficient resizing
+- Tooltip portal is only rendered when `withTooltips` is enabled

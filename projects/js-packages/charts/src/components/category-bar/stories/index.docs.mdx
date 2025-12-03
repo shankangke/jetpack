@@ -1,0 +1,274 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as CategoryBarStories from './index.stories';
+
+<Meta title="JS Packages/Charts/Types/Category Bar" of={ CategoryBarStories } />
+
+# Category Bar
+
+The Category Bar is a horizontal segmented bar component for visualizing proportions, progress, performance, or status. It displays colored segments that can show proportional data or equal-width status indicators.
+
+<Canvas of={ CategoryBarStories.Default } />
+
+## Overview
+
+The Category Bar component provides a flexible way to display proportional data in a horizontal format. It supports two display modes, optional markers, cumulative labels, and full theme integration.
+
+<Source
+	language="jsx"
+	code={`import { CategoryBar } from '@automattic/charts';
+
+<CategoryBar
+	values={[25, 50, 25]}
+	width={400}
+	height={8}
+/>`}
+/>
+
+## API Reference
+
+For detailed information about component props, types, and exports, see the [Category Bar API Reference](./?path=/docs/js-packages-charts-types-category-bar-api-reference--docs).
+
+## Basic Usage
+
+### Simple Category Bar
+
+The simplest category bar requires only a `values` prop with an array of numbers:
+
+<Canvas of={ CategoryBarStories.Default } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[10, 25, 45, 20]}
+	width={400}
+	height={8}
+/>`}
+/>
+
+### Required Props
+
+- **`values`**: Array of numbers or segment objects containing value, label, and optional color
+
+### Optional Props
+
+- **`mode`** (default: `'proportional'`): Display mode - `'proportional'` or `'equal'`
+- **`width`** (default: `300`): Width of the bar in pixels
+- **`height`** (default: `8`): Height of the bar in pixels
+- **`colors`**: Custom colors for segments
+- **`showLabels`** (default: `true`): Whether to show cumulative value labels
+- **`marker`**: Optional position indicator
+- **`gap`** (default: `0`): Gap between segments in pixels
+- **`borderRadius`** (default: `4`): Corner radius for the bar
+- **`withTooltips`** (default: `false`): Enables interactive tooltips on hover
+
+## Display Modes
+
+### Proportional Mode (Default)
+
+In proportional mode, segment widths are calculated based on their values relative to the total:
+
+<Canvas of={ CategoryBarStories.ProportionalMode } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[25, 50, 25]}
+	mode="proportional"
+	width={400}
+/>`}
+/>
+
+### Equal Mode
+
+In equal mode, all segments have the same width regardless of their values. This is useful for status indicators:
+
+<Canvas of={ CategoryBarStories.EqualMode } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[10, 20, 30]}
+	mode="equal"
+	colors={['#ef4444', '#f59e0b', '#22c55e']}
+	width={400}
+/>`}
+/>
+
+## Marker Indicator
+
+Add a marker to indicate a specific position on the bar:
+
+<Canvas of={ CategoryBarStories.WithMarker } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[10, 25, 45, 20]}
+	width={400}
+	marker={{
+		value: 68,
+		tooltip: 'Current: 68%',
+		showAnimation: true,
+	}}
+/>`}
+/>
+
+## Color Customization
+
+### Using Colors Prop
+
+Apply custom colors to segments:
+
+<Canvas of={ CategoryBarStories.CustomColors } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[25, 25, 25, 25]}
+	colors={['#8b5cf6', '#ec4899', '#f97316', '#14b8a6']}
+	width={400}
+/>`}
+/>
+
+### Using Segment Objects
+
+For more control, use segment objects with individual colors:
+
+<Canvas of={ CategoryBarStories.WithSegmentObjects } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[
+		{ value: 40, label: 'Revenue', color: '#22c55e' },
+		{ value: 35, label: 'Costs', color: '#ef4444' },
+		{ value: 25, label: 'Profit', color: '#3b82f6' },
+	]}
+	withTooltips={true}
+	width={400}
+/>`}
+/>
+
+## Common Use Cases
+
+### Health Check Indicator
+
+<Canvas of={ CategoryBarStories.HealthCheckStyle } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[
+		{ value: 1, label: 'Critical' },
+		{ value: 1, label: 'Warning' },
+		{ value: 1, label: 'Good' },
+	]}
+	mode="equal"
+	colors={['#ef4444', '#f59e0b', '#22c55e']}
+	showLabels={false}
+	gap={2}
+	borderRadius={3}
+	width={300}
+	height={6}
+/>`}
+/>
+
+### Progress Indicator
+
+<Canvas of={ CategoryBarStories.ProgressIndicator } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[65, 35]}
+	colors={['#3b82f6', '#e5e7eb']}
+	showLabels={false}
+	borderRadius={5}
+	width={300}
+	height={10}
+/>`}
+/>
+
+## Dashboard Integration
+
+The Category Bar works well in dashboard layouts:
+
+<Canvas of={ CategoryBarStories.DashboardIntegration } />
+
+## Labels and Formatting
+
+### Custom Label Formatter
+
+Use a custom formatter for cumulative labels:
+
+<Canvas of={ CategoryBarStories.CustomLabelFormatter } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[25, 50, 25]}
+	labelFormatter={(value) => \`\${value}%\`}
+	width={400}
+/>`}
+/>
+
+### Hiding Labels
+
+Labels can be hidden for a cleaner appearance:
+
+<Canvas of={ CategoryBarStories.NoLabels } />
+
+## Visual Customization
+
+### Adding Gaps Between Segments
+
+<Canvas of={ CategoryBarStories.WithGap } />
+
+<Source
+	language="jsx"
+	code={`<CategoryBar
+	values={[20, 30, 25, 25]}
+	gap={4}
+	borderRadius={4}
+	width={400}
+/>`}
+/>
+
+## Theme Integration
+
+The Category Bar automatically uses colors from the theme provided by `GlobalChartsProvider`:
+
+<Source
+	language="jsx"
+	code={`import { GlobalChartsProvider, CategoryBar } from '@automattic/charts';
+
+<GlobalChartsProvider theme={customTheme}>
+	<CategoryBar values={[30, 40, 30]} width={400} />
+</GlobalChartsProvider>`}
+/>
+
+Custom colors via the `colors` prop or segment objects will override theme colors.
+
+## Edge Cases
+
+The Category Bar handles various edge cases gracefully:
+
+<Canvas of={ CategoryBarStories.EdgeCases } />
+
+- **Empty data**: Renders an empty placeholder
+- **Single segment**: Displays a full-width bar
+- **Many segments**: Handles numerous segments proportionally
+- **Very small values**: Maintains visibility for tiny segments
+
+## Accessibility
+
+The Category Bar component:
+
+- Uses semantic HTML structure
+- Supports tooltip descriptions for segment details
+- Provides data-testid attributes for testing
+- Maintains sufficient color contrast
+
+## Browser Compatibility
+
+The Category Bar uses standard CSS and HTML and is compatible with all modern browsers.

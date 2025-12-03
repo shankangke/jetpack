@@ -1,0 +1,95 @@
+.categoryBar {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+
+	&--empty {
+		display: block;
+		background-color: #e5e7eb;
+		border-radius: 4px;
+	}
+
+	&__bar {
+		display: flex;
+		width: 100%;
+		position: relative;
+		overflow: visible;
+	}
+
+	&__segment {
+		height: 100%;
+		flex-shrink: 0;
+		transition: opacity 0.15s ease;
+		cursor: default;
+
+		&:hover {
+			opacity: 0.8;
+		}
+	}
+
+	&__marker {
+		position: absolute;
+		width: 2px;
+		transform: translateX(-50%);
+		pointer-events: none;
+		z-index: 1;
+
+		&--animated {
+			transition: left 0.5s ease-out;
+		}
+
+		// Triangle indicator at top
+		&::before {
+			content: "";
+			position: absolute;
+			top: -4px;
+			left: 50%;
+			transform: translateX(-50%);
+			border-left: 4px solid transparent;
+			border-right: 4px solid transparent;
+			border-top: 4px solid currentColor;
+		}
+	}
+
+	&__labels {
+		display: flex;
+		position: relative;
+		margin-top: 4px;
+		height: 16px;
+		font-size: 12px;
+		color: #6b7280;
+	}
+
+	&__label {
+		position: absolute;
+		transform: translateX(-50%);
+		white-space: nowrap;
+
+		// First label aligned to left edge
+		&:first-child {
+			transform: translateX(0);
+		}
+
+		// Last label aligned to right edge
+		&:last-child {
+			transform: translateX(-100%);
+		}
+	}
+
+	&__tooltip {
+		background-color: #1f2937;
+		color: #fff;
+		padding: 4px 8px;
+		border-radius: 4px;
+		font-size: 12px;
+		white-space: nowrap;
+	}
+
+	&__tooltipLabel {
+		font-weight: 500;
+	}
+
+	&__tooltipValue {
+		font-weight: 400;
+	}
+}

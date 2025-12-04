@@ -47,7 +47,7 @@ class Contact_Form_Block {
 						'default'                => array(
 							'type'              => 'flex',
 							'flexWrap'          => 'wrap',
-							'orientation'       => 'vertical',
+							'orientation'       => 'horizontal',
 							'justifyContent'    => 'stretch',
 							'verticalAlignment' => 'bottom',
 						),

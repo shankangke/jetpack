@@ -1,6 +1,6 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
-import { Axis, BarSeries, BarGroup, BarStack, Grid, XYChart } from '@visx/xychart';
+import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
@@ -39,11 +39,6 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	showZeroValues?: boolean;
 	legendInteractive?: boolean;
 	children?: ReactNode;
-	/**
-	 * When true, bars are stacked on top of each other instead of grouped side by side.
-	 * Works with both horizontal and vertical orientations.
-	 */
-	stacked?: boolean;
 }
 
 // Base props type with optional responsive properties
@@ -104,7 +99,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legendInteractive = false,
 	animation,
 	children,
-	stacked = false,
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
@@ -296,9 +290,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		() => ( {
 			orientation,
 			withPatterns,
-			stacked,
 		} ),
-		[ orientation, withPatterns, stacked ]
+		[ orientation, withPatterns ]
 	);
 
 	// Register chart with context only if data is valid
@@ -407,47 +400,25 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						</text>
 					) : null }
 
-					{ stacked ? (
-						<BarStack>
-							{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-								// Skip rendering invisible series
-								if ( ! isVisible ) {
-									return null;
-								}
+					<BarGroup padding={ chartOptions.barGroup.padding }>
+						{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
+							// Skip rendering invisible series
+							if ( ! isVisible ) {
+								return null;
+							}
 
-								return (
-									<BarSeries
-										key={ seriesData?.label }
-										dataKey={ seriesData?.label }
-										data={ seriesData.data as DataPointDate[] }
-										yAccessor={ chartOptions.accessors.yAccessor }
-										xAccessor={ chartOptions.accessors.xAccessor }
-										colorAccessor={ getBarBackground( index ) }
-									/>
-								);
-							} ) }
-						</BarStack>
-					) : (
-						<BarGroup padding={ chartOptions.barGroup.padding }>
-							{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-								// Skip rendering invisible series
-								if ( ! isVisible ) {
-									return null;
-								}
-
-								return (
-									<BarSeries
-										key={ seriesData?.label }
-										dataKey={ seriesData?.label }
-										data={ seriesData.data as DataPointDate[] }
-										yAccessor={ chartOptions.accessors.yAccessor }
-										xAccessor={ chartOptions.accessors.xAccessor }
-										colorAccessor={ getBarBackground( index ) }
-									/>
-								);
-							} ) }
-						</BarGroup>
-					) }
+							return (
+								<BarSeries
+									key={ seriesData?.label }
+									dataKey={ seriesData?.label }
+									data={ seriesData.data as DataPointDate[] }
+									yAccessor={ chartOptions.accessors.yAccessor }
+									xAccessor={ chartOptions.accessors.xAccessor }
+									colorAccessor={ getBarBackground( index ) }
+								/>
+							);
+						} ) }
+					</BarGroup>
 
 					<Axis { ...chartOptions.axis.x } />
 					<Axis { ...chartOptions.axis.y } />

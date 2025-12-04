@@ -55,11 +55,6 @@ const meta: Meta< StoryArgs > = {
 			description: 'Use patterns for bars',
 			table: { category: 'Visual Style' },
 		},
-		stacked: {
-			control: 'boolean',
-			description: 'Stack bars on top of each other instead of grouping side by side',
-			table: { category: 'Visual Style' },
-		},
 	},
 	render: args => {
 		const { seriesCount, ...chartProps } = args;
@@ -342,43 +337,6 @@ export const HorizontalBarChart: Story = {
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 		orientation: 'horizontal',
 		gridVisibility: 'none',
-	},
-};
-
-// Stacked bar chart stories
-export const StackedVertical: Story = {
-	args: {
-		...Default.args,
-		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-		stacked: true,
-		showLegend: true,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Vertical stacked bar chart where bars are stacked on top of each other instead of grouped side by side. Useful for showing part-to-whole relationships across categories.',
-			},
-		},
-	},
-};
-
-export const StackedHorizontal: Story = {
-	args: {
-		...Default.args,
-		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-		stacked: true,
-		orientation: 'horizontal',
-		showLegend: true,
-		gridVisibility: 'y',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Horizontal stacked bar chart. Combines the stacked layout with horizontal orientation for a different visual presentation of the same data.',
-			},
-		},
 	},
 };
 

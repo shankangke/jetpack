@@ -3401,8 +3401,8 @@ importers:
         specifier: 4.36.0
         version: 4.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*

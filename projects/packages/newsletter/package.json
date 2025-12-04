@@ -41,7 +41,7 @@
 		"@wordpress/i18n": "6.9.0",
 		"@wordpress/notices": "5.36.0",
 		"@wordpress/url": "4.36.0",
-		"debug": "4.4.1"
+		"debug": "4.4.3"
 	},
 	"devDependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",

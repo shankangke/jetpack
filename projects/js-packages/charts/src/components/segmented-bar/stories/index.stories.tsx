@@ -1,10 +1,10 @@
-import { CategoryBar } from '../';
-import type { CategoryBarProps } from '../types';
+import { SegmentedBar } from '../';
+import type { SegmentedBarProps } from '../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< CategoryBarProps > = {
-	title: 'JS Packages/Charts/Types/Category Bar',
-	component: CategoryBar,
+const meta: Meta< SegmentedBarProps > = {
+	title: 'JS Packages/Charts/Types/Segmented Bar',
+	component: SegmentedBar,
 	parameters: {
 		layout: 'padded',
 	},
@@ -54,10 +54,10 @@ const meta: Meta< CategoryBarProps > = {
 };
 
 export default meta;
-type Story = StoryObj< typeof CategoryBar >;
+type Story = StoryObj< typeof SegmentedBar >;
 
 /**
- * Default category bar with proportional segments.
+ * Default segmented bar with proportional segments.
  * Use the controls to explore different configurations.
  */
 export const Default: Story = {
@@ -94,7 +94,7 @@ export const EqualMode: Story = {
 };
 
 /**
- * Category bar with a marker indicating a specific position.
+ * Segmented bar with a marker indicating a specific position.
  */
 export const WithMarker: Story = {
 	args: {

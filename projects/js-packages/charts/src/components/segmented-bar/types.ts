@@ -1,7 +1,7 @@
 /**
- * Single segment in the category bar
+ * Single segment in the segmented bar
  */
-export interface CategoryBarSegment {
+export interface SegmentedBarSegment {
 	/**
 	 * Numeric value for this segment.
 	 * In 'proportional' mode, determines segment width relative to total.
@@ -24,7 +24,7 @@ export interface CategoryBarSegment {
 /**
  * Marker configuration for indicating a position on the bar
  */
-export interface CategoryBarMarker {
+export interface SegmentedBarMarker {
 	/**
 	 * Position value where the marker should appear.
 	 * Interpreted as cumulative value from left (0 to total).
@@ -51,14 +51,14 @@ export interface CategoryBarMarker {
 /**
  * Display mode for segment sizing
  */
-export type CategoryBarMode = 'proportional' | 'equal';
+export type SegmentedBarMode = 'proportional' | 'equal';
 
-export interface CategoryBarProps {
+export interface SegmentedBarProps {
 	/**
 	 * Array of segments to display.
 	 * Can be simple numbers or full segment objects.
 	 */
-	values: number[] | CategoryBarSegment[];
+	values: number[] | SegmentedBarSegment[];
 
 	/**
 	 * Display mode for segments.
@@ -66,7 +66,7 @@ export interface CategoryBarProps {
 	 * - 'equal': All segments have equal width
 	 * @default 'proportional'
 	 */
-	mode?: CategoryBarMode;
+	mode?: SegmentedBarMode;
 
 	/**
 	 * Custom colors for segments (overrides theme colors)
@@ -77,7 +77,7 @@ export interface CategoryBarProps {
 	/**
 	 * Optional marker to indicate a position on the bar
 	 */
-	marker?: CategoryBarMarker;
+	marker?: SegmentedBarMarker;
 
 	/**
 	 * Whether to show cumulative value labels below the bar

@@ -8,8 +8,8 @@ import {
 	useGlobalChartsTheme,
 	useChartId,
 } from '../../providers';
-import styles from './category-bar.module.scss';
-import type { CategoryBarProps, CategoryBarSegment } from './types';
+import styles from './segmented-bar.module.scss';
+import type { SegmentedBarProps, SegmentedBarSegment } from './types';
 import type { MouseEvent, FC } from 'react';
 
 const DEFAULT_WIDTH = 300;
@@ -19,19 +19,19 @@ const DEFAULT_BORDER_RADIUS = 4;
 const DEFAULT_LABEL_FORMATTER = ( value: number ) => value.toString();
 
 /**
- * Normalizes input values to CategoryBarSegment array.
+ * Normalizes input values to SegmentedBarSegment array.
  * @param values      - Input values array (numbers or segment objects).
  * @param colors      - Optional custom colors array.
  * @param themeColors - Theme colors to use as fallback.
- * @return Normalized array of CategoryBarSegment objects.
+ * @return Normalized array of SegmentedBarSegment objects.
  */
 const normalizeSegments = (
-	values: number[] | CategoryBarSegment[],
+	values: number[] | SegmentedBarSegment[],
 	colors: string[] | undefined,
 	themeColors: string[]
-): CategoryBarSegment[] => {
+): SegmentedBarSegment[] => {
 	return ( values || [] ).map( ( value, index ) => {
-		const segment: CategoryBarSegment = typeof value === 'number' ? { value } : { ...value };
+		const segment: SegmentedBarSegment = typeof value === 'number' ? { value } : { ...value };
 
 		// Apply color priority: segment.color > colors prop > theme colors
 		if ( ! segment.color ) {
@@ -42,7 +42,7 @@ const normalizeSegments = (
 	} );
 };
 
-const CategoryBarComponent = forwardRef< HTMLDivElement, CategoryBarProps >(
+const SegmentedBarComponent = forwardRef< HTMLDivElement, SegmentedBarProps >(
 	(
 		{
 			values,
@@ -127,7 +127,7 @@ const CategoryBarComponent = forwardRef< HTMLDivElement, CategoryBarProps >(
 		} );
 
 		const createSegmentMouseMoveHandler = useCallback(
-			( segment: CategoryBarSegment ) => ( event: MouseEvent< HTMLDivElement > ) => {
+			( segment: SegmentedBarSegment ) => ( event: MouseEvent< HTMLDivElement > ) => {
 				if ( ! withTooltips ) {
 					return;
 				}
@@ -161,9 +161,9 @@ const CategoryBarComponent = forwardRef< HTMLDivElement, CategoryBarProps >(
 			return (
 				<div
 					ref={ ref }
-					className={ clsx( styles.categoryBar, styles[ 'categoryBar--empty' ], className ) }
+					className={ clsx( styles.segmentedBar, styles[ 'segmentedBar--empty' ], className ) }
 					style={ { width, height } }
-					data-testid="category-bar-empty"
+					data-testid="segmented-bar-empty"
 				/>
 			);
 		}
@@ -175,13 +175,13 @@ const CategoryBarComponent = forwardRef< HTMLDivElement, CategoryBarProps >(
 		return (
 			<div
 				ref={ containerRef }
-				className={ clsx( styles.categoryBar, className ) }
+				className={ clsx( styles.segmentedBar, className ) }
 				style={ { width } }
-				data-testid="category-bar"
-				data-chart-id={ `category-bar-${ chartId }` }
+				data-testid="segmented-bar"
+				data-chart-id={ `segmented-bar-${ chartId }` }
 			>
 				<div
-					className={ styles.categoryBar__bar }
+					className={ styles.segmentedBar__bar }
 					style={ {
 						height,
 						borderRadius,
@@ -196,9 +196,9 @@ const CategoryBarComponent = forwardRef< HTMLDivElement, CategoryBarProps >(
 						return (
 							<div
 								key={ index }
-								className={ clsx( styles.categoryBar__segment, {
-									[ styles[ 'categoryBar__segment--first' ] ]: isFirst,
-									[ styles[ 'categoryBar__segment--last' ] ]: isLast,
+								className={ clsx( styles.segmentedBar__segment, {
+									[ styles[ 'segmentedBar__segment--first' ] ]: isFirst,
+									[ styles[ 'segmentedBar__segment--last' ] ]: isLast,
 								} ) }
 								style={ {
 									width: `${ ( widthPercent / 100 ) * availableWidth }px`,
@@ -210,15 +210,15 @@ const CategoryBarComponent = forwardRef< HTMLDivElement, CategoryBarProps >(
 								} }
 								onMouseMove={ segmentMouseMoveHandlers[ index ] }
 								onMouseLeave={ handleMouseLeave }
-								data-testid={ `category-bar-segment-${ index }` }
+								data-testid={ `segmented-bar-segment-${ index }` }
 							/>
 						);
 					} ) }
 
 					{ marker && markerPosition !== null && (
 						<div
-							className={ clsx( styles.categoryBar__marker, {
-								[ styles[ 'categoryBar__marker--animated' ] ]: marker.showAnimation,
+							className={ clsx( styles.segmentedBar__marker, {
+								[ styles[ 'segmentedBar__marker--animated' ] ]: marker.showAnimation,
 							} ) }
 							style={ {
 								left: `${ markerPosition }%`,
@@ -226,22 +226,22 @@ const CategoryBarComponent = forwardRef< HTMLDivElement, CategoryBarProps >(
 								top: -4,
 								backgroundColor: marker.color || theme?.gridColor || '#374151',
 							} }
-							data-testid="category-bar-marker"
+							data-testid="segmented-bar-marker"
 							title={ marker.tooltip }
 						/>
 					) }
 				</div>
 
 				{ showLabels && (
-					<div className={ styles.categoryBar__labels }>
+					<div className={ styles.segmentedBar__labels }>
 						{ labelPositions.map( ( pos, index ) => (
 							<span
 								key={ index }
-								className={ styles.categoryBar__label }
+								className={ styles.segmentedBar__label }
 								style={ {
 									left: `${ pos.percent }%`,
 								} }
-								data-testid={ `category-bar-label-${ index }` }
+								data-testid={ `segmented-bar-label-${ index }` }
 							>
 								{ labelFormatter( pos.value ) }
 							</span>
@@ -251,11 +251,11 @@ const CategoryBarComponent = forwardRef< HTMLDivElement, CategoryBarProps >(
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-						<div className={ styles.categoryBar__tooltip } role="tooltip">
+						<div className={ styles.segmentedBar__tooltip } role="tooltip">
 							{ tooltipData.label && (
-								<span className={ styles.categoryBar__tooltipLabel }>{ tooltipData.label }: </span>
+								<span className={ styles.segmentedBar__tooltipLabel }>{ tooltipData.label }: </span>
 							) }
-							<span className={ styles.categoryBar__tooltipValue }>{ tooltipData.value }</span>
+							<span className={ styles.segmentedBar__tooltipValue }>{ tooltipData.value }</span>
 						</div>
 					</TooltipInPortal>
 				) }
@@ -264,38 +264,38 @@ const CategoryBarComponent = forwardRef< HTMLDivElement, CategoryBarProps >(
 	}
 );
 
-CategoryBarComponent.displayName = 'CategoryBarComponent';
+SegmentedBarComponent.displayName = 'SegmentedBarComponent';
 
 /**
- * CategoryBar chart component with GlobalChartsProvider wrapper.
- * @param props - CategoryBar component props.
- * @return CategoryBar component wrapped in provider if needed.
+ * SegmentedBar chart component with GlobalChartsProvider wrapper.
+ * @param props - SegmentedBar component props.
+ * @return SegmentedBar component wrapped in provider if needed.
  */
-const CategoryBarWithProvider: FC< CategoryBarProps > = props => {
+const SegmentedBarWithProvider: FC< SegmentedBarProps > = props => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	// If we're already in a GlobalChartsProvider context, don't create a new one
 	if ( existingContext ) {
-		return <CategoryBarComponent { ...props } />;
+		return <SegmentedBarComponent { ...props } />;
 	}
 
 	// Otherwise, create our own GlobalChartsProvider
 	return (
 		<GlobalChartsProvider>
-			<CategoryBarComponent { ...props } />
+			<SegmentedBarComponent { ...props } />
 		</GlobalChartsProvider>
 	);
 };
 
-CategoryBarWithProvider.displayName = 'CategoryBarUnresponsive';
+SegmentedBarWithProvider.displayName = 'SegmentedBarUnresponsive';
 
 // Export the provider-wrapped component as the unresponsive variant
-const CategoryBarUnresponsive = CategoryBarWithProvider;
+const SegmentedBarUnresponsive = SegmentedBarWithProvider;
 
 /**
- * Responsive configuration for CategoryBar
+ * Responsive configuration for SegmentedBar
  */
-export type CategoryBarResponsiveConfig = {
+export type SegmentedBarResponsiveConfig = {
 	/**
 	 * The maximum width of the chart. Defaults to 1200.
 	 */
@@ -307,17 +307,17 @@ export type CategoryBarResponsiveConfig = {
 };
 
 /**
- * Responsive CategoryBar chart component.
+ * Responsive SegmentedBar chart component.
  * @param props                    - Component props including responsive configuration.
  * @param props.resizeDebounceTime - Debounce time for resize events.
  * @param props.maxWidth           - Maximum width constraint.
- * @return Responsive CategoryBar component.
+ * @return Responsive SegmentedBar component.
  */
-const CategoryBar = ( {
+const SegmentedBar = ( {
 	resizeDebounceTime = 300,
 	maxWidth = 1200,
 	...chartProps
-}: Omit< CategoryBarProps, 'width' > & CategoryBarResponsiveConfig & { width?: number } ) => {
+}: Omit< SegmentedBarProps, 'width' > & SegmentedBarResponsiveConfig & { width?: number } ) => {
 	const { parentRef, width: parentWidth } = useParentSize( {
 		debounceTime: resizeDebounceTime,
 		enableDebounceLeadingCall: true,
@@ -332,7 +332,7 @@ const CategoryBar = ( {
 				width: chartProps.width ?? '100%',
 			} }
 		>
-			<CategoryBarUnresponsive
+			<SegmentedBarUnresponsive
 				{ ...chartProps }
 				width={ containerWidth || chartProps.width || DEFAULT_WIDTH }
 			/>
@@ -340,6 +340,6 @@ const CategoryBar = ( {
 	);
 };
 
-CategoryBar.displayName = 'CategoryBar';
+SegmentedBar.displayName = 'SegmentedBar';
 
-export { CategoryBar as default, CategoryBarUnresponsive };
+export { SegmentedBar as default, SegmentedBarUnresponsive };

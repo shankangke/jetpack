@@ -36,12 +36,6 @@
 			"require": "./dist/charts/bar-list-chart/index.cjs"
 		},
 		"./bar-list-chart/style.css": "./dist/charts/bar-list-chart/index.css",
-		"./segmented-bar": {
-			"jetpack:src": "./src/charts/segmented-bar/index.ts",
-			"import": "./dist/charts/segmented-bar/index.js",
-			"require": "./dist/charts/segmented-bar/index.cjs"
-		},
-		"./segmented-bar/style.css": "./dist/charts/segmented-bar/index.css",
 		"./conversion-funnel-chart": {
 			"jetpack:src": "./src/charts/conversion-funnel-chart/index.ts",
 			"import": "./dist/charts/conversion-funnel-chart/index.js",
@@ -88,6 +82,12 @@
 			"import": "./dist/providers/index.js",
 			"require": "./dist/providers/index.cjs"
 		},
+		"./segmented-bar": {
+			"jetpack:src": "./src/charts/segmented-bar/index.ts",
+			"import": "./dist/charts/segmented-bar/index.js",
+			"require": "./dist/charts/segmented-bar/index.cjs"
+		},
+		"./segmented-bar/style.css": "./dist/charts/segmented-bar/index.css",
 		"./style.css": "./dist/index.css",
 		"./tooltip": {
 			"jetpack:src": "./src/components/tooltip/index.ts",

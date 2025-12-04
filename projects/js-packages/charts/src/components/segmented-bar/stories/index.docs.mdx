@@ -1,23 +1,23 @@
 import { Meta, Canvas, Source } from '@storybook/addon-docs/blocks';
-import * as CategoryBarStories from './index.stories';
+import * as SegmentedBarStories from './index.stories';
 
-<Meta title="JS Packages/Charts/Types/Category Bar" of={ CategoryBarStories } />
+<Meta title="JS Packages/Charts/Types/Segmented Bar" of={ SegmentedBarStories } />
 
-# Category Bar
+# Segmented Bar
 
-The Category Bar is a horizontal segmented bar component for visualizing proportions, progress, or status indicators.
+The Segmented Bar is a horizontal segmented bar component for visualizing proportions, progress, or status indicators.
 
-<Canvas of={ CategoryBarStories.Default } />
+<Canvas of={ SegmentedBarStories.Default } />
 
 ## Overview
 
-The Category Bar displays colored segments that can show proportional data or equal-width status indicators. Use the Storybook controls to explore different configurations.
+The Segmented Bar displays colored segments that can show proportional data or equal-width status indicators. Use the Storybook controls to explore different configurations.
 
 <Source
 	language="jsx"
-	code={`import { CategoryBar } from '@automattic/charts';
+	code={`import { SegmentedBar } from '@automattic/charts';
 
-<CategoryBar
+<SegmentedBar
 	values={[
 		{ value: 40, label: 'Direct' },
 		{ value: 30, label: 'Organic Search' },
@@ -31,7 +31,7 @@ The Category Bar displays colored segments that can show proportional data or eq
 
 ## API Reference
 
-For detailed prop information, see the [Category Bar API Reference](./?path=/docs/js-packages-charts-types-category-bar-api-reference--docs).
+For detailed prop information, see the [Segmented Bar API Reference](./?path=/docs/js-packages-charts-types-segmented-bar-api-reference--docs).
 
 ## Display Modes
 
@@ -43,11 +43,11 @@ Segment widths are based on their values relative to the total.
 
 All segments have the same width regardless of values. Useful for status indicators:
 
-<Canvas of={ CategoryBarStories.EqualMode } />
+<Canvas of={ SegmentedBarStories.EqualMode } />
 
 <Source
 	language="jsx"
-	code={`<CategoryBar
+	code={`<SegmentedBar
 	values={[
 		{ value: 1, label: 'Critical' },
 		{ value: 1, label: 'Warning' },
@@ -64,11 +64,11 @@ All segments have the same width regardless of values. Useful for status indicat
 
 Add a marker to indicate a specific position on the bar:
 
-<Canvas of={ CategoryBarStories.WithMarker } />
+<Canvas of={ SegmentedBarStories.WithMarker } />
 
 <Source
 	language="jsx"
-	code={`<CategoryBar
+	code={`<SegmentedBar
 	values={[25, 35, 25, 15]}
 	marker={{
 		value: 60,
@@ -96,4 +96,4 @@ Add a marker to indicate a specific position on the bar:
 
 ## Theme Integration
 
-The Category Bar uses colors from `GlobalChartsProvider`. Custom colors via the `colors` prop override theme colors.
+The Segmented Bar uses colors from `GlobalChartsProvider`. Custom colors via the `colors` prop override theme colors.

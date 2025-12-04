@@ -1,19 +1,19 @@
 import { Meta, Source } from '@storybook/addon-docs/blocks';
 
-<Meta title="JS Packages/Charts/Types/Category Bar/API Reference" />
+<Meta title="JS Packages/Charts/Types/Segmented Bar/API Reference" />
 
-# Category Bar API Reference
+# Segmented Bar API Reference
 
-Complete API documentation for the Category Bar component.
+Complete API documentation for the Segmented Bar component.
 
 ## Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `values` | `number[] \| CategoryBarSegment[]` | Required | Array of segment values or segment objects |
+| `values` | `number[] \| SegmentedBarSegment[]` | Required | Array of segment values or segment objects |
 | `mode` | `'proportional' \| 'equal'` | `'proportional'` | How segment widths are calculated |
 | `colors` | `string[]` | Theme colors | Custom colors for segments |
-| `marker` | `CategoryBarMarker` | - | Optional position indicator |
+| `marker` | `SegmentedBarMarker` | - | Optional position indicator |
 | `showLabels` | `boolean` | `true` | Whether to show cumulative value labels |
 | `width` | `number` | `300` | Width of the bar in pixels |
 | `height` | `number` | `8` | Height of the bar in pixels |
@@ -27,11 +27,11 @@ Complete API documentation for the Category Bar component.
 
 ## Type Definitions
 
-### CategoryBarSegment
+### SegmentedBarSegment
 
 <Source
 	language="typescript"
-	code={`interface CategoryBarSegment {
+	code={`interface SegmentedBarSegment {
 	/**
 	 * Numeric value for this segment.
 	 * In 'proportional' mode, determines segment width relative to total.
@@ -52,11 +52,11 @@ Complete API documentation for the Category Bar component.
 }`}
 />
 
-### CategoryBarMarker
+### SegmentedBarMarker
 
 <Source
 	language="typescript"
-	code={`interface CategoryBarMarker {
+	code={`interface SegmentedBarMarker {
 	/**
 	 * Position value where the marker should appear.
 	 * Interpreted as cumulative value from left (0 to total).
@@ -75,28 +75,28 @@ Complete API documentation for the Category Bar component.
 	showAnimation?: boolean;
 
 	/**
-	 * Marker color (defaults to theme text color)
+	 * Marker color (defaults to theme grid color)
 	 */
 	color?: string;
 }`}
 />
 
-### CategoryBarMode
+### SegmentedBarMode
 
 <Source
 	language="typescript"
-	code={`type CategoryBarMode = 'proportional' | 'equal';`}
+	code={`type SegmentedBarMode = 'proportional' | 'equal';`}
 />
 
-### CategoryBarProps
+### SegmentedBarProps
 
 <Source
 	language="typescript"
-	code={`interface CategoryBarProps {
-	values: number[] | CategoryBarSegment[];
-	mode?: CategoryBarMode;
+	code={`interface SegmentedBarProps {
+	values: number[] | SegmentedBarSegment[];
+	mode?: SegmentedBarMode;
 	colors?: string[];
-	marker?: CategoryBarMarker;
+	marker?: SegmentedBarMarker;
 	showLabels?: boolean;
 	width?: number;
 	height?: number;
@@ -115,42 +115,42 @@ Complete API documentation for the Category Bar component.
 <Source
 	language="typescript"
 	code={`// Main exports
-import { CategoryBar, CategoryBarUnresponsive } from '@automattic/charts';
+import { SegmentedBar, SegmentedBarUnresponsive } from '@automattic/charts';
 
 // Type exports
 import type {
-	CategoryBarProps,
-	CategoryBarSegment,
-	CategoryBarMarker,
-	CategoryBarMode,
+	SegmentedBarProps,
+	SegmentedBarSegment,
+	SegmentedBarMarker,
+	SegmentedBarMode,
 } from '@automattic/charts';
 
 // Direct import (tree-shakeable)
-import { CategoryBar } from '@automattic/charts/category-bar';`}
+import { SegmentedBar } from '@automattic/charts/segmented-bar';`}
 />
 
 ## Component Variants
 
-### CategoryBar (Responsive)
+### SegmentedBar (Responsive)
 
 The default export that automatically adapts to container width:
 
 <Source
 	language="jsx"
-	code={`import { CategoryBar } from '@automattic/charts';
+	code={`import { SegmentedBar } from '@automattic/charts';
 
-<CategoryBar values={[30, 40, 30]} height={8} />`}
+<SegmentedBar values={[30, 40, 30]} height={8} />`}
 />
 
-### CategoryBarUnresponsive
+### SegmentedBarUnresponsive
 
 Fixed-size variant that requires explicit width:
 
 <Source
 	language="jsx"
-	code={`import { CategoryBarUnresponsive } from '@automattic/charts';
+	code={`import { SegmentedBarUnresponsive } from '@automattic/charts';
 
-<CategoryBarUnresponsive values={[30, 40, 30]} width={400} height={8} />`}
+<SegmentedBarUnresponsive values={[30, 40, 30]} width={400} height={8} />`}
 />
 
 ## CSS Classes
@@ -159,19 +159,19 @@ The component uses CSS Modules with the following class structure:
 
 | Class | Description |
 |-------|-------------|
-| `.categoryBar` | Root container element |
-| `.categoryBar--empty` | Applied when values array is empty |
-| `.categoryBar__bar` | The horizontal bar container |
-| `.categoryBar__segment` | Individual segment elements |
-| `.categoryBar__segment--first` | First segment (has left border radius) |
-| `.categoryBar__segment--last` | Last segment (has right border radius) |
-| `.categoryBar__marker` | Position marker element |
-| `.categoryBar__marker--animated` | Marker with animation enabled |
-| `.categoryBar__labels` | Labels container |
-| `.categoryBar__label` | Individual label elements |
-| `.categoryBar__tooltip` | Tooltip container |
-| `.categoryBar__tooltipLabel` | Tooltip label text |
-| `.categoryBar__tooltipValue` | Tooltip value text |
+| `.segmentedBar` | Root container element |
+| `.segmentedBar--empty` | Applied when values array is empty |
+| `.segmentedBar__bar` | The horizontal bar container |
+| `.segmentedBar__segment` | Individual segment elements |
+| `.segmentedBar__segment--first` | First segment (has left border radius) |
+| `.segmentedBar__segment--last` | Last segment (has right border radius) |
+| `.segmentedBar__marker` | Position marker element |
+| `.segmentedBar__marker--animated` | Marker with animation enabled |
+| `.segmentedBar__labels` | Labels container |
+| `.segmentedBar__label` | Individual label elements |
+| `.segmentedBar__tooltip` | Tooltip container |
+| `.segmentedBar__tooltipLabel` | Tooltip label text |
+| `.segmentedBar__tooltipValue` | Tooltip value text |
 
 ## Display Modes
 
@@ -216,11 +216,11 @@ The component uses `GlobalChartsProvider` for theming:
 
 <Source
 	language="jsx"
-	code={`import { GlobalChartsProvider, CategoryBar } from '@automattic/charts';
+	code={`import { GlobalChartsProvider, SegmentedBar } from '@automattic/charts';
 import { jetpackTheme } from '@automattic/charts/providers';
 
 <GlobalChartsProvider theme={jetpackTheme}>
-	<CategoryBar values={[30, 40, 30]} width={400} />
+	<SegmentedBar values={[30, 40, 30]} width={400} />
 </GlobalChartsProvider>`}
 />
 
@@ -236,7 +236,7 @@ Colors are applied in this priority order:
 
 | Scenario | Behavior |
 |----------|----------|
-| Empty `values` array | Renders empty placeholder with `data-testid="category-bar-empty"` |
+| Empty `values` array | Renders empty placeholder with `data-testid="segmented-bar-empty"` |
 | Single segment | Renders full-width bar |
 | All zero values | Equal mode: equal segments; Proportional: equal segments |
 | Marker value > total | Marker clamped to 100% |
@@ -248,11 +248,11 @@ For testing, the component provides these test IDs:
 
 | Test ID | Description |
 |---------|-------------|
-| `category-bar` | Main component container |
-| `category-bar-empty` | Empty state container |
-| `category-bar-segment-{index}` | Individual segments (0-indexed) |
-| `category-bar-marker` | Position marker |
-| `category-bar-label-{index}` | Cumulative labels (0-indexed) |
+| `segmented-bar` | Main component container |
+| `segmented-bar-empty` | Empty state container |
+| `segmented-bar-segment-{index}` | Individual segments (0-indexed) |
+| `segmented-bar-marker` | Position marker |
+| `segmented-bar-label-{index}` | Cumulative labels (0-indexed) |
 
 ## Performance Notes
 

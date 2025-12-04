@@ -43,7 +43,7 @@ export interface SegmentedBarMarker {
 	showAnimation?: boolean;
 
 	/**
-	 * Marker color (defaults to theme text color)
+	 * Marker color (defaults to theme grid color)
 	 */
 	color?: string;
 }

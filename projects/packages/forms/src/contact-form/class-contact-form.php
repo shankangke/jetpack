@@ -924,8 +924,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 
 		$is_single_input_form = is_array( $form->fields ) && count( $form->fields ) === 1;
+		$is_flex_layout       = isset( $attributes['layout']['type'] ) && $attributes['layout']['type'] === 'flex';
+		$is_nowrap_layout     = isset( $attributes['layout']['flexWrap'] ) && $attributes['layout']['flexWrap'] === 'nowrap';
+		$is_forced_horizontal = $is_flex_layout && $is_nowrap_layout
+			&& ( ! isset( $attributes['layout']['orientation'] ) || isset( $attributes['layout']['orientation'] ) && $attributes['layout']['orientation'] === 'horizontal' );
 
-		$container_classes_string = self::get_block_container_classes( $attributes, $is_single_input_form );
+		$extra_container_classes = array();
+		if ( $is_forced_horizontal ) {
+			$extra_container_classes[] = 'is-forced-horizontal-form';
+		}
+		if ( $is_single_input_form ) {
+			$extra_container_classes[] = 'is-single-input-form';
+		}
+		$container_classes_string = self::get_block_container_classes( $attributes, $extra_container_classes );
 
 		$is_reload_after_success = isset( $_GET['contact-form-id'] )
 		&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
@@ -968,11 +979,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
 		$has_custom_redirect       = $form->has_custom_redirect();
-
-		$is_flex_layout       = isset( $attributes['layout']['type'] ) && $attributes['layout']['type'] === 'flex';
-		$is_nowrap_layout     = isset( $attributes['layout']['flexWrap'] ) && $attributes['layout']['flexWrap'] === 'nowrap';
-		$is_forced_horizontal = $is_flex_layout && $is_nowrap_layout
-			&& ( ! isset( $attributes['layout']['orientation'] ) || isset( $attributes['layout']['orientation'] ) && $attributes['layout']['orientation'] === 'horizontal' );
 
 		$default_context = array(
 			'formId'                  => $id,
@@ -1098,7 +1104,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( $is_multistep ) {
 				$r = preg_replace( '/<div class="wp-block-jetpack-form-step-navigation__wrapper/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-form-step-navigation__wrapper', $r, 1 );
 			} elseif ( $has_submit_button_block ) {
-				if ( $is_forced_horizontal ) {
+				if ( $is_forced_horizontal || $is_single_input_form ) {
 					// When user forced a horizontal layout, place the error wrapper
 					// after the form body.
 					$r .= self::render_error_wrapper( 'is-horizontal' );
@@ -2833,18 +2839,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * which go on the outermost div.
 	 *
 	 * @param array $attributes Block attributes.
-	 * @param bool  $is_single_input_form Whether the form is a single input form.
+	 * @param array $extra_container_classes Extra container classes.
 	 * @return string The block's classes.
 	 */
-	public static function get_block_container_classes( $attributes = array(), $is_single_input_form = false ) {
+	public static function get_block_container_classes( $attributes = array(), $extra_container_classes = array() ) {
 		// using wp-block-jetpack-contact-form-container here
 		// confuses the layout support process, making it place the CSS classes on the container
 		// instead of the actual block.
-		$classes = array( 'jetpack-contact-form-container', 'wp-block-jetpack-contact-form-container' );
+		$classes = array( 'jetpack-contact-form-container' );
 
-		if ( $is_single_input_form ) {
-			$classes[] = 'is-single-input-form';
-		}
+		$classes = array_merge( $classes, $extra_container_classes );
 
 		if ( isset( $attributes['variationName'] ) && $attributes['variationName'] === 'multistep' ) {
 			$classes[] = 'is-multistep';

@@ -89,6 +89,12 @@
 			"require": "./dist/components/tooltip/index.cjs"
 		},
 		"./tooltip/style.css": "./dist/components/tooltip/index.css",
+		"./trend-indicator": {
+			"jetpack:src": "./src/components/trend-indicator/index.ts",
+			"import": "./dist/components/trend-indicator/index.js",
+			"require": "./dist/components/trend-indicator/index.cjs"
+		},
+		"./trend-indicator/style.css": "./dist/components/trend-indicator/index.css",
 		"./utils": {
 			"jetpack:src": "./src/utils/index.ts",
 			"import": "./dist/utils/index.js",
@@ -143,6 +149,9 @@
 			],
 			"legend": [
 				"./dist/components/legend/index.d.ts"
+			],
+			"trend-indicator": [
+				"./dist/components/trend-indicator/index.d.ts"
 			],
 			"hooks": [
 				"./dist/hooks/index.d.ts"

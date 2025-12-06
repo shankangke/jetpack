@@ -11,6 +11,8 @@ export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
+export { TrendIndicator } from './components/trend-indicator';
+export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 
 // Compositions
 

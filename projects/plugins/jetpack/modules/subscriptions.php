@@ -16,17 +16,24 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
+use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
+
+// Load required classes and constants.
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/constants.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
@@ -133,7 +140,7 @@ class Jetpack_Subscriptions {
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
-		add_action( 'jetpack_published_post', array( $this, 'store_subscribers_when_sent' ), 10, 3 );
+		add_action( 'jetpack_published_post', array( $this, 'store_initial_debug_info' ), 10, 3 );
 
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 18, 1 );
 
@@ -160,6 +167,9 @@ class Jetpack_Subscriptions {
 		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
 		$subscribers_dashboard = new Subscribers_Dashboard();
 		$subscribers_dashboard::init();
+
+		$newsletter_settings = new Newsletter_Settings();
+		$newsletter_settings::init();
 	}
 
 	/**
@@ -993,7 +1003,7 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Store the list of subscribers when a post is first emailed.
+	 * Store the initial debug info when a post is first published.
 	 *
 	 * This method is called when a post is published and emails are sent to subscribers.
 	 * It stores the subscriber count and metadata in post meta for debugging purposes.
@@ -1006,36 +1016,75 @@ class Jetpack_Subscriptions {
 	 *
 	 * @return void
 	 */
-	public function store_subscribers_when_sent( $post_ID, $flags, $post ) {
-		// Only store if emails are being sent.
-		if ( ! isset( $flags['send_subscription'] ) || ! $flags['send_subscription'] ) {
-			return;
-		}
-
-		// Only store once - check if we've already stored subscribers for this post.
-		$existing_subscribers = get_post_meta( $post_ID, '_jetpack_newsletter_subscribers_when_sent', true );
-		if ( ! empty( $existing_subscribers ) ) {
-			return;
-		}
-
+	public function store_initial_debug_info( $post_ID, $flags, $post ) {
 		// Only store for posts.
 		if ( 'post' !== $post->post_type ) {
+			return;
+		}
+
+		// Only store once - check if we've already stored debug info for this post.
+		$existing_subscribers = get_post_meta( $post_ID, '_jetpack_newsletter_initial_debug_info', true );
+		if ( ! empty( $existing_subscribers ) ) {
 			return;
 		}
 
 		// Fetch subscriber data from WordPress.com API.
 		$subscriber_data = $this->get_subscriber_data();
 
+		// Get email subscription setting for this post.
+		$dont_email             = get_post_meta( $post_ID, '_jetpack_dont_email_post_to_subs', true );
+		$email_to_subs_disabled = ! empty( $dont_email );
+
+		// Also store the final determination from the flags (includes more checks than post_meta).
+		$will_send_to_subscribers = isset( $flags['send_subscription'] ) && $flags['send_subscription'];
+
+		// Get newsletter access level for this post.
+		// Use constant for meta key if available, fallback to string.
+		$access_level_meta_key = defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' )
+			? META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS
+			: '_jetpack_newsletter_access';
+
+		$newsletter_access_level = get_post_meta( $post_ID, $access_level_meta_key, true );
+		if ( empty( $newsletter_access_level ) ) {
+			// Use constant for default value.
+			$newsletter_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+		}
+
+		// Get newsletter categories information.
+		$newsletter_categories_enabled  = (bool) get_option( 'wpcom_newsletter_categories_enabled', false );
+		$post_categories                = wp_get_post_categories( $post_ID );
+		$newsletter_category_ids        = Jetpack_Newsletter_Category_Helper::get_category_ids();
+		$post_newsletter_categories     = array();
+		$post_non_newsletter_categories = array();
+
+		if ( $newsletter_categories_enabled && ! empty( $newsletter_category_ids ) && ! empty( $post_categories ) ) {
+			// Find which of the post's categories are newsletter categories.
+			$post_newsletter_categories = array_intersect( $post_categories, $newsletter_category_ids );
+			$post_newsletter_categories = array_values( array_map( 'intval', $post_newsletter_categories ) );
+
+			// Find which of the post's categories are NOT newsletter categories.
+			$post_non_newsletter_categories = array_diff( $post_categories, $newsletter_category_ids );
+			$post_non_newsletter_categories = array_values( array_map( 'intval', $post_non_newsletter_categories ) );
+		} elseif ( ! empty( $post_categories ) ) {
+			// If newsletter categories are not enabled, all post categories are non-newsletter categories.
+			$post_non_newsletter_categories = array_values( array_map( 'intval', $post_categories ) );
+		}
+
 		// Store subscriber data with timestamp.
 		$data_to_store = array(
-			'timestamp'         => current_time( 'mysql' ),
-			'email_subscribers' => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
-			'paid_subscribers'  => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
-			'all_subscribers'   => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
-			'subscriber_list'   => isset( $subscriber_data['subscriber_list'] ) && is_array( $subscriber_data['subscriber_list'] ) ? $subscriber_data['subscriber_list'] : array(),
+			'timestamp'                     => current_time( 'mysql' ),
+			'email_subscribers'             => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
+			'paid_subscribers'              => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
+			'all_subscribers'               => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
+			'email_to_subs_disabled'        => $email_to_subs_disabled,
+			'will_send_to_subscribers'      => $will_send_to_subscribers,
+			'newsletter_access_level'       => $newsletter_access_level,
+			'newsletter_categories_enabled' => $newsletter_categories_enabled,
+			'newsletter_category_ids'       => $post_newsletter_categories,
+			'non_newsletter_category_ids'   => $post_non_newsletter_categories,
 		);
 
-		update_post_meta( $post_ID, '_jetpack_newsletter_subscribers_when_sent', $data_to_store );
+		update_post_meta( $post_ID, '_jetpack_newsletter_initial_debug_info', $data_to_store );
 	}
 
 	/**
@@ -1047,10 +1096,10 @@ class Jetpack_Subscriptions {
 	 */
 	private function get_subscriber_data() {
 		$subscriber_data = array(
-			'email_subscribers' => 0,
-			'paid_subscribers'  => 0,
-			'all_subscribers'   => 0,
-			'subscriber_list'   => array(),
+			'email_subscribers'     => 0,
+			'paid_subscribers'      => 0,
+			'all_subscribers'       => 0,
+			'email_subscriber_list' => array(),
 		);
 
 		// Only fetch if Jetpack is connected.
@@ -1061,118 +1110,20 @@ class Jetpack_Subscriptions {
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		// First, get subscriber counts from stats endpoint.
-		$stats_path     = sprintf( '/sites/%d/subscribers/stats', $site_id );
-		$stats_response = Client::wpcom_json_api_request_as_blog(
-			$stats_path,
-			'2',
-			array(),
-			null,
-			'wpcom'
-		);
-
-		if ( ! is_wp_error( $stats_response ) ) {
-			$stats_code = wp_remote_retrieve_response_code( $stats_response );
-			if ( 200 === $stats_code ) {
-				$subscriber_counts = json_decode( wp_remote_retrieve_body( $stats_response ), true );
-				if ( is_array( $subscriber_counts ) ) {
-					if ( isset( $subscriber_counts['counts']['email_subscribers'] ) ) {
-						$subscriber_data['email_subscribers'] = (int) $subscriber_counts['counts']['email_subscribers'];
-					}
-					if ( isset( $subscriber_counts['counts']['paid_subscribers'] ) ) {
-						$subscriber_data['paid_subscribers'] = (int) $subscriber_counts['counts']['paid_subscribers'];
-					}
-					if ( isset( $subscriber_counts['counts']['all_subscribers'] ) ) {
-						$subscriber_data['all_subscribers'] = (int) $subscriber_counts['counts']['all_subscribers'];
-					}
-				}
+		$stats = Jetpack_Subscriptions_Helper::fetch_subscriber_stats( $site_id );
+		if ( ! is_wp_error( $stats ) ) {
+			if ( isset( $stats['email_subscribers'] ) ) {
+				$subscriber_data['email_subscribers'] = $stats['email_subscribers'];
+			}
+			if ( isset( $stats['paid_subscribers'] ) ) {
+				$subscriber_data['paid_subscribers'] = $stats['paid_subscribers'];
+			}
+			if ( isset( $stats['all_subscribers'] ) ) {
+				$subscriber_data['all_subscribers'] = $stats['all_subscribers'];
 			}
 		}
-
-		// Fetch the actual subscriber list with emails.
-		$subscriber_emails                  = $this->fetch_all_subscribers( $site_id );
-		$subscriber_data['subscriber_list'] = $subscriber_emails;
 
 		return $subscriber_data;
-	}
-
-	/**
-	 * Fetch all subscribers from WordPress.com API with pagination.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param int $site_id Site ID.
-	 * @return array Array of subscriber data, each containing 'email' and 'is_paid' keys.
-	 */
-	private function fetch_all_subscribers( $site_id ) {
-		$subscriber_emails = array();
-		$page              = 1;
-		$per_page          = 100; // Maximum per page to minimize requests.
-
-		while ( true ) {
-			$api_path = sprintf(
-				'/sites/%d/subscribers/?page=%d&per_page=%d&filter=email_subscriber',
-				$site_id,
-				$page,
-				$per_page
-			);
-
-			$response = Client::wpcom_json_api_request_as_blog(
-				$api_path,
-				'2',
-				array(),
-				null,
-				'wpcom'
-			);
-
-			if ( is_wp_error( $response ) ) {
-				break;
-			}
-
-			$response_code = wp_remote_retrieve_response_code( $response );
-			if ( 200 !== $response_code ) {
-				break;
-			}
-
-			$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( ! is_array( $response_body ) ) {
-				break;
-			}
-
-			// Extract subscriber data from subscribers array.
-			if ( isset( $response_body['subscribers'] ) && is_array( $response_body['subscribers'] ) ) {
-				foreach ( $response_body['subscribers'] as $subscriber ) {
-					if ( isset( $subscriber['email_address'] ) && is_email( $subscriber['email_address'] ) ) {
-						// Determine if subscriber has an active paid plan.
-						$is_paid = false;
-						if ( isset( $subscriber['plans'] ) && is_array( $subscriber['plans'] ) ) {
-							foreach ( $subscriber['plans'] as $plan ) {
-								if ( isset( $plan['status'] ) && 'active' === $plan['status'] ) {
-									$is_paid = true;
-									break;
-								}
-							}
-						}
-
-						$subscriber_emails[] = array(
-							'email'   => sanitize_email( $subscriber['email_address'] ),
-							'is_paid' => $is_paid,
-						);
-					}
-				}
-			}
-
-			// Check if there are more pages.
-			$total       = isset( $response_body['total'] ) ? (int) $response_body['total'] : 0;
-			$total_pages = isset( $response_body['total_pages'] ) ? (int) $response_body['total_pages'] : 1;
-
-			if ( $page >= $total_pages || count( $subscriber_emails ) >= $total ) {
-				break;
-			}
-
-			++$page;
-		}
-
-		return $subscriber_emails;
 	}
 
 	/**
@@ -1267,6 +1218,7 @@ class Jetpack_Subscriptions {
 Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
+require __DIR__ . '/subscriptions/class-jetpack-subscriptions-helper.php';
 require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
 require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';

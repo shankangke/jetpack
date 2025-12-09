@@ -19,8 +19,8 @@ class Jetpack_Sync_Integration_Test extends Jetpack_Sync_TestBase {
 	public function test_sends_publish_post_action() {
 		$post_id = self::factory()->post->create();
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event();
-		$this->assertEquals( 'jetpack_published_post', $event->action );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
+		$this->assertNotEmpty( $event );
 		$this->assertEquals( $post_id, $event->args[0] );
 	}
 

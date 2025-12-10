@@ -10,6 +10,7 @@ export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 // Components
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
+export { GeoChart, GeoChartUnresponsive } from './components/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 
 // Compositions
@@ -30,5 +31,6 @@ export {
 export type * from './types';
 export type * from './visx/types';
 export type { PieChartProps } from './charts/pie-chart';
+export type { GeoChartProps } from './components/geo-chart';
 
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';

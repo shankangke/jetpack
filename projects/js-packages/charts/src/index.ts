@@ -16,6 +16,8 @@ export type { TrendIndicatorProps, TrendDirection } from './components/trend-ind
 
 // Compositions
 
+// Compositions
+
 // Themes
 export { GlobalChartsProvider as ThemeProvider } from './providers';
 

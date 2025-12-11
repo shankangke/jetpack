@@ -4,15 +4,14 @@
 
 import { render, screen } from '@testing-library/react';
 import { SegmentedBar, SegmentedBarUnresponsive } from '../';
-import { GlobalChartsProvider, jetpackTheme, wooTheme } from '../../../providers';
+import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 
 describe( 'SegmentedBar', () => {
 	const defaultData = [ 25, 50, 25 ];
 
-	const renderWithTheme = ( props = {}, themeName = 'jetpack' ) => {
-		const theme = themeName === 'jetpack' ? jetpackTheme : wooTheme;
+	const renderWithTheme = ( props = {} ) => {
 		return render(
-			<GlobalChartsProvider theme={ theme }>
+			<GlobalChartsProvider theme={ defaultTheme }>
 				<SegmentedBarUnresponsive values={ defaultData } { ...props } />
 			</GlobalChartsProvider>
 		);
@@ -49,7 +48,7 @@ describe( 'SegmentedBar', () => {
 
 		test( 'renders responsive variant', () => {
 			render(
-				<GlobalChartsProvider theme={ jetpackTheme }>
+				<GlobalChartsProvider theme={ defaultTheme }>
 					<SegmentedBar values={ defaultData } width={ 200 } height={ 10 } />
 				</GlobalChartsProvider>
 			);
@@ -208,18 +207,11 @@ describe( 'SegmentedBar', () => {
 	} );
 
 	describe( 'Theme Integration', () => {
-		test( 'uses jetpack theme colors', () => {
-			renderWithTheme( { values: [ 50, 50 ] }, 'jetpack' );
+		test( 'uses theme colors by default', () => {
+			renderWithTheme( { values: [ 50, 50 ] } );
 			const segment0 = screen.getByTestId( 'segmented-bar-segment-0' );
-			// Jetpack theme first color
-			expect( segment0 ).toHaveStyle( { backgroundColor: jetpackTheme.colors[ 0 ] } );
-		} );
-
-		test( 'uses woo theme colors', () => {
-			renderWithTheme( { values: [ 50, 50 ] }, 'woo' );
-			const segment0 = screen.getByTestId( 'segmented-bar-segment-0' );
-			// Woo theme first color
-			expect( segment0 ).toHaveStyle( { backgroundColor: wooTheme.colors[ 0 ] } );
+			// Default theme first color
+			expect( segment0 ).toHaveStyle( { backgroundColor: defaultTheme.colors[ 0 ] } );
 		} );
 
 		test( 'color prop overrides theme color', () => {

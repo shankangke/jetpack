@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useState, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
@@ -29,13 +29,12 @@ export const usePluginInstallation = (
 	tracksEventName: string
 ): PluginInstallation => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
-	const { tracks } = useAnalytics();
 
 	const installPlugin = useCallback( async () => {
 		setIsInstalling( true );
 
 		if ( tracksEventName ) {
-			tracks.recordEvent( tracksEventName, {
+			jetpackAnalytics.tracks.recordEvent( tracksEventName, {
 				screen: 'block-editor',
 				intent: isInstalled ? 'activate-plugin' : 'install-plugin',
 			} );
@@ -54,7 +53,7 @@ export const usePluginInstallation = (
 		} finally {
 			setIsInstalling( false );
 		}
-	}, [ slug, pluginPath, isInstalled, tracks, tracksEventName ] );
+	}, [ slug, pluginPath, isInstalled, tracksEventName ] );
 
 	return {
 		isInstalling,

@@ -9,7 +9,7 @@ import {
 	useChartId,
 } from '../../providers';
 import styles from './segmented-bar.module.scss';
-import type { SegmentedBarProps, SegmentedBarSegment } from './types';
+import type { SegmentedBarProps, SegmentedBarSegment, SegmentedBarResponsiveConfig } from './types';
 import type { MouseEvent, FC } from 'react';
 
 const DEFAULT_WIDTH = 300;
@@ -266,20 +266,15 @@ const SegmentedBarComponent = forwardRef< HTMLDivElement, SegmentedBarProps >(
 
 SegmentedBarComponent.displayName = 'SegmentedBarComponent';
 
-/**
- * SegmentedBar chart component with GlobalChartsProvider wrapper.
- * @param props - SegmentedBar component props.
- * @return SegmentedBar component wrapped in provider if needed.
- */
-const SegmentedBarWithProvider: FC< SegmentedBarProps > = props => {
+const SegmentedBarUnresponsive: FC< SegmentedBarProps > = props => {
 	const existingContext = useContext( GlobalChartsContext );
 
-	// If we're already in a GlobalChartsProvider context, don't create a new one
+	// If we're already in a GlobalChartsProvider context, render the core component directly
 	if ( existingContext ) {
 		return <SegmentedBarComponent { ...props } />;
 	}
 
-	// Otherwise, create our own GlobalChartsProvider
+	// Otherwise, wrap with our own GlobalChartsProvider
 	return (
 		<GlobalChartsProvider>
 			<SegmentedBarComponent { ...props } />
@@ -287,37 +282,11 @@ const SegmentedBarWithProvider: FC< SegmentedBarProps > = props => {
 	);
 };
 
-SegmentedBarWithProvider.displayName = 'SegmentedBarUnresponsive';
+SegmentedBarUnresponsive.displayName = 'SegmentedBarUnresponsive';
 
-// Export the provider-wrapped component as the unresponsive variant
-const SegmentedBarUnresponsive = SegmentedBarWithProvider;
-
-/**
- * Responsive configuration for SegmentedBar
- */
-export type SegmentedBarResponsiveConfig = {
-	/**
-	 * The maximum width of the chart. Defaults to 1200.
-	 */
-	maxWidth?: number;
-	/**
-	 * Child render updates upon resize are delayed until debounceTime milliseconds after the last resize event.
-	 */
-	resizeDebounceTime?: number;
-};
-
-/**
- * Responsive SegmentedBar chart component.
- * @param props                    - Component props including responsive configuration.
- * @param props.resizeDebounceTime - Debounce time for resize events.
- * @param props.maxWidth           - Maximum width constraint.
- * @return Responsive SegmentedBar component.
- */
-const SegmentedBar = ( {
-	resizeDebounceTime = 300,
-	maxWidth = 1200,
-	...chartProps
-}: Omit< SegmentedBarProps, 'width' > & SegmentedBarResponsiveConfig & { width?: number } ) => {
+const SegmentedBar: FC<
+	Omit< SegmentedBarProps, 'width' > & SegmentedBarResponsiveConfig & { width?: number }
+> = ( { resizeDebounceTime = 300, maxWidth = 1200, ...chartProps } ) => {
 	const { parentRef, width: parentWidth } = useParentSize( {
 		debounceTime: resizeDebounceTime,
 		enableDebounceLeadingCall: true,

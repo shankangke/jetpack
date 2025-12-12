@@ -136,3 +136,18 @@ export interface SegmentedBarProps {
 	 */
 	withTooltips?: boolean;
 }
+
+/**
+ * Responsive configuration for SegmentedBar
+ */
+export type SegmentedBarResponsiveConfig = {
+	/**
+	 * The maximum width of the chart. Defaults to 1200.
+	 */
+	maxWidth?: number;
+	/**
+	 * Child render updates upon resize are delayed until debounceTime milliseconds
+	 * after the last resize event.
+	 */
+	resizeDebounceTime?: number;
+};

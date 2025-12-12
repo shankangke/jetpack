@@ -3,7 +3,7 @@ import type { SegmentedBarProps } from '../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< SegmentedBarProps > = {
-	title: 'JS Packages/Charts/Types/Segmented Bar',
+	title: 'JS Packages/Charts Library/Charts/Segmented Bar',
 	component: SegmentedBar,
 	parameters: {
 		layout: 'padded',
